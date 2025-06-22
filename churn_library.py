@@ -305,7 +305,16 @@ def train_models(X_train, X_test, y_train, y_test):
 
     return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
 
-
+def predict_models(X_train, X_yest, y_train, y_test):
+    with open('./models/rfc_model.pkl', 'rb') as f:
+        rfc = joblib.load(f)
+    with open('./models/lrc_model.pkl', 'rb') as f:
+        lrc = joblib.load(f)
+    y_train_preds_rf = rfc.predict(X_train)
+    y_test_preds_rf = rfc.predict(X_yest)
+    y_train_preds_lr = lrc.predict(X_train)
+    y_test_preds_lr = lrc.predict(X_yest)
+    return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
 
 if __name__ == "__main__":
     pth = './data/bank_data.csv'
