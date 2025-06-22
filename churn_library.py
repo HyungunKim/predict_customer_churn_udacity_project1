@@ -176,8 +176,33 @@ def classification_report_image(y_train,
     rfc_disp = RocCurveDisplay.from_predictions(y_test, y_test_preds_rf, ax=ax)
     lrc_plot = RocCurveDisplay.from_predictions(y_test, y_test_preds_lr, ax=ax)
 
-    plt.savefig('./images/classification_report_image.png')
-    pass
+    plt.savefig(f'./images/roc_curve_result.png')
+    plt.close()
+
+    plt.figure(figsize=(15, 5))
+    # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
+    plt.text(0.01, 1.25, str('Random Forest Train'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {'fontsize': 10},
+             fontproperties='monospace')  # approach improved by OP -> monospace!
+
+    plt.text(0.01, 0.6, str('Random Forest Test'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {'fontsize': 10},
+             fontproperties='monospace')  # approach improved by OP -> monospace!
+    plt.axis('off')
+    plt.savefig('./images/classification_report_random_forest.png')
+    plt.close()
+
+    plt.figure(figsize=(15, 5))
+    plt.text(0.01, 1.25, str('Logistic Regression Train'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {'fontsize': 10},
+             fontproperties='monospace')  # approach improved by OP -> monospace!
+    plt.text(0.01, 0.6, str('Logistic Regression Test'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {'fontsize': 10},
+             fontproperties='monospace')  # approach improved by OP -> monospace!
+    plt.axis('off')
+    plt.savefig('./images/classification_report_logistic_regression.png')
+
+    plt.close()
 
 
 def feature_importance_plot(model, X_data, output_pth):
