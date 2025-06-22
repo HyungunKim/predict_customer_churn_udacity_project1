@@ -340,6 +340,7 @@ if __name__ == "__main__":
     logging.debug('encoded_results')
     logging.debug(str(df.head()))
     x_train, x_test, y_train, y_test = perform_feature_engineering(df, 'Churn')
+    logging.info("performing EDA")
     perform_eda(df)
     if os.path.exists('./models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl'):
         logging.info('models exist, loading models')
@@ -348,8 +349,11 @@ if __name__ == "__main__":
         logging.info('models do not exist, training models')
         y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(x_train, x_test, y_train, y_test)
 
+    logging.info("calling classification report image")
     classification_report_image(y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf)
     rfc = joblib.load('./models/rfc_model.pkl')
     X_all = pd.concat([x_train, x_test], axis=0)
-    feature_importance_plot(rfc, X_all, './images')
+    logging.info("calling feature importance plot")
+    # sample only fraction of X_all to save time
+    feature_importance_plot(rfc, X_all.iloc[::10], './images')
 
