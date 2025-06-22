@@ -319,7 +319,6 @@ def predict_models(X_train, X_yest, y_train, y_test):
 if __name__ == "__main__":
     pth = './data/bank_data.csv'
     df = import_data(pth)
-    perform_eda(df)
     category = ['Gender',
                 'Education_Level',
                 'Marital_Status',
@@ -328,6 +327,17 @@ if __name__ == "__main__":
     df = encoder_helper(df, category)
     logging.debug('encoded_results')
     logging.debug(str(df.head()))
-    X, X_test, y, y_test = perform_feature_engineering(df, 'Churn')
-    train_models(X, X_test, y, y_test)
-    perform_feature_engineering()
+    x_train, x_test, y_train, y_test = perform_feature_engineering(df, 'Churn')
+    perform_eda(df)
+    if os.path.exists('./models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl'):
+        logging.info('models exist, loading models')
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = predict_models(x_train, x_test, y_train, y_test)
+    else:
+        logging.info('models do not exist, training models')
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(x_train, x_test, y_train, y_test)
+
+    classification_report_image(y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf)
+    rfc = joblib.load('./models/rfc_model.pkl')
+    X_all = pd.concat([x_train, x_test], axis=0)
+    feature_importance_plot(rfc, X_all, './images')
+
