@@ -20,10 +20,12 @@ sns.set()
 
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.makedirs('./images/eda', exist_ok=True)
+os.makedirs('./logs', exist_ok=True)
 logging.basicConfig(filename="./logs/churn_library_debug.log",
                     format='[%(asctime)s] - %(levelname)s - %(message)s',
                     filemode='w',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 
 def import_data(pth):
@@ -36,7 +38,7 @@ def import_data(pth):
             df: pandas dataframe
     '''
     df = pd.read_csv(pth)
-    logging.debug(f"df size: {len(df)}")
+    logging.info(f"df size: {len(df)}")
     return df
 
 
@@ -257,18 +259,18 @@ def train_models(X_train, X_test, y_train, y_test):
     y_test_preds_lr = lrc.predict(X_test)
 
     # scores
-    print('random forest results')
-    print('test results')
-    print(classification_report(y_test, y_test_preds_rf))
-    print('train results')
-    print(classification_report(y_train, y_train_preds_rf))
+    logging.info('random forest results')
+    logging.info('test results')
+    logging.info(classification_report(y_test, y_test_preds_rf))
+    logging.info('train results')
+    logging.info(classification_report(y_train, y_train_preds_rf))
 
-    print('logistic regression results')
-    print('test results')
-    print(classification_report(y_test, y_test_preds_lr))
-    print('train results')
+    logging.info('logistic regression results')
+    logging.info('test results')
+    logging.info(classification_report(y_test, y_test_preds_lr))
+    logging.info('train results')
 
-    print(classification_report(y_train, y_train_preds_lr))
+    logging.info(classification_report(y_train, y_train_preds_lr))
 
     with open('./models/rfc_model.pkl', 'wb') as f:
         joblib.dump(cv_rfc, f)
