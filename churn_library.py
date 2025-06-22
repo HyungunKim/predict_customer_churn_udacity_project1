@@ -1,6 +1,22 @@
 # library doc string
 
+'''
+A library for predicting customer churn in banking services.
 
+This library provides functionality for:
+- Data import and preprocessing
+- Exploratory Data Analysis (EDA) with visualizations
+- Feature engineering and encoding
+- Model training (Random Forest and Logistic Regression)
+- Model evaluation and result visualization
+- Feature importance analysis
+
+Note: This library is part of a Udacity Project. The original work belongs to the Udacity course
+        "Machine Learning DevOps Engineer" courer authors.
+
+Author: Hyunkun Kim
+Date: 2025-06-22
+'''
 # import libraries
 import logging
 import os
