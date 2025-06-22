@@ -59,27 +59,31 @@ def perform_eda(df):
         lambda val: 0 if val == "Existing Customer" else 1)
     plt.figure(figsize=(20, 10))
     df['Churn'].hist()
+    plt.title('Churn Distribution')
     plt.savefig('./images/eda/customer_churn_distribution.png')
 
     # plot customer age distribution
     plt.figure(figsize=(20, 10))
     df['Customer_Age'].hist()
+    plt.title('Customer Age Distribution')
     plt.savefig('./images/eda/customer_age_distribution.png')
 
     # plot martial status
     plt.figure(figsize=(20, 10))
     df.Marital_Status.value_counts('normalize').plot(kind='bar')
+    plt.title('Marital Status Distribution')
     plt.savefig('./images/eda/martial_status.png')
 
     # total trans Ct
     plt.figure(figsize=(20, 10))
     sns.histplot(df['Total_Trans_Ct'], stat='density', kde=True)
+    plt.title('Total Trans Ct Distribution')
     plt.savefig('./images/eda/Total_Trans_Ct.png')
 
     # plot correlation
     plt.figure(figsize=(20, 10))
     sns.heatmap(df.select_dtypes(include=['int64', 'float64']).corr(), annot=False, cmap='Dark2_r', linewidths=2)
-    #     plt.show()
+    plt.title('Correlation Heatmap')
     plt.savefig('./images/eda/correlation.png')
 
 
@@ -174,15 +178,17 @@ def classification_report_image(y_train,
     logging.info('train results')
     logging.info(classification_report(y_train, y_train_preds_lr))
 
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(10, 8))
     ax = plt.gca()
     rfc_disp = RocCurveDisplay.from_predictions(y_test, y_test_preds_rf, ax=ax)
     lrc_plot = RocCurveDisplay.from_predictions(y_test, y_test_preds_lr, ax=ax)
-
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
     plt.savefig(f'./images/roc_curve_result.png')
     plt.close()
 
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(7, 5))
     # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
     plt.text(0.01, 1.25, str('Random Forest Train'), {'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {'fontsize': 10},
@@ -195,7 +201,8 @@ def classification_report_image(y_train,
     plt.savefig('./images/classification_report_random_forest.png')
     plt.close()
 
-    plt.figure(figsize=(15, 5))
+
+    plt.figure(figsize=(7, 5))
     plt.text(0.01, 1.25, str('Logistic Regression Train'), {'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {'fontsize': 10},
              fontproperties='monospace')  # approach improved by OP -> monospace!
@@ -219,10 +226,12 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
-    plt.figure(figsize=(20, 5))
+    plt.figure(figsize=(10, 5))
     explainer = shap.TreeExplainer(model.best_estimator_)
     shap_values = explainer.shap_values(X_data)
-    shap.summary_plot(shap_values, X_data, plot_type="bar")
+    shap.summary_plot(shap_values, X_data, plot_type="bar", show=False)
+    plt.title("SHAP Feature Importance")
+    plt.ylabel('SHAP Value')
     plt.savefig(f"{output_pth}/shap_feature_importance.png")
 
     # Calculate feature importances
