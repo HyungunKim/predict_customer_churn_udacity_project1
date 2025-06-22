@@ -42,10 +42,6 @@ logging.basicConfig(filename="./logs/churn_library_debug.log",
                     format='[%(asctime)s] - %(levelname)s - %(message)s',
                     filemode='w',
                     level=logging.INFO)
-console = logging.StreamHandler()
-formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
 
 @dataclass
 class ModelResults:
@@ -405,6 +401,11 @@ def predict_models(x_train_, x_test_):
 
 
 if __name__ == "__main__":
+    console = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
+
     PTH = './data/bank_data.csv'
     df = import_data(PTH)
     category = ['Gender',
