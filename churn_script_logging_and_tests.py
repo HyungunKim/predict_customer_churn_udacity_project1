@@ -4,6 +4,12 @@ A test module for the customer churn prediction library.
 This module contains unit tests for all functions in the churn_library.py module,
 including data import, EDA, feature engineering, model training and evaluation.
 Each test function includes logging to track success and failures of the tests.
+
+Note: This library is part of a Udacity Project. The original work belongs to the Udacity course
+        "Machine Learning DevOps Engineer" courer authors.
+
+Author: Hyunkun Kim
+Date: 2025-06-22
 """
 import os
 import sys
