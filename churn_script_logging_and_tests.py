@@ -101,24 +101,289 @@ def test_eda(perform_eda):
     '''
     test perform eda function
     '''
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+        perform_eda(df)
+        logging.info("Testing perform_eda: SUCCESS")
+    except Exception as err:
+        logging.error("Testing perform_eda: ERROR")
+        raise err
+
+    # Check if the output images exist
+    try:
+        assert os.path.isfile('./images/eda/customer_churn_distribution.png')
+        assert os.path.isfile('./images/eda/customer_age_distribution.png')
+        assert os.path.isfile('./images/eda/martial_status.png')
+        assert os.path.isfile('./images/eda/Total_Trans_Ct.png')
+        assert os.path.isfile('./images/eda/correlation.png')
+        logging.info("Testing perform_eda output files: SUCCESS")
+    except AssertionError as err:
+        logging.error("Testing perform_eda output files: Not all expected files were created")
+        raise err
 
 
 def test_encoder_helper(encoder_helper):
     '''
     test encoder helper
     '''
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+        category_lst = [
+            'Gender',
+            'Education_Level',
+            'Marital_Status',
+            'Income_Category',
+            'Card_Category'
+        ]
+
+        # Add Churn column
+        df['Churn'] = df['Attrition_Flag'].apply(
+            lambda val: 0 if val == "Existing Customer" else 1)
+
+        encoded_df = encoder_helper(df, category_lst)
+        logging.info("Testing encoder_helper: SUCCESS")
+
+        # Check that the new columns were created
+        try:
+            for category in category_lst:
+                assert f'{category}_Churn' in encoded_df.columns
+
+            # Check that the encoded columns are not empty
+            for category in category_lst:
+                assert encoded_df[f'{category}_Churn'].shape[0] > 0
+
+            logging.info("Testing encoder_helper output columns: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing encoder_helper output columns: Not all expected columns were created")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing encoder_helper: ERROR")
+        raise err
 
 
 def test_perform_feature_engineering(perform_feature_engineering):
     '''
     test perform_feature_engineering
     '''
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+
+        # Prepare the dataframe with encoded features
+        category_lst = [
+            'Gender',
+            'Education_Level',
+            'Marital_Status',
+            'Income_Category',
+            'Card_Category'
+        ]
+        df = cls.encoder_helper(df, category_lst)
+
+        # Perform feature engineering
+        X_train, X_test, y_train, y_test = perform_feature_engineering(df)
+        logging.info("Testing perform_feature_engineering: SUCCESS")
+
+        # Check that the outputs are not empty
+        try:
+            assert X_train.shape[0] > 0
+            assert X_test.shape[0] > 0
+            assert len(y_train) > 0
+            assert len(y_test) > 0
+
+            # Check that the train/test split was done correctly
+            assert X_train.shape[0] == len(y_train)
+            assert X_test.shape[0] == len(y_test)
+
+            logging.info("Testing perform_feature_engineering outputs: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing perform_feature_engineering outputs: The outputs are not as expected")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing perform_feature_engineering: ERROR")
+        raise err
 
 
 def test_train_models(train_models):
     '''
     test train_models
     '''
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+
+        # Prepare the dataframe with encoded features
+        category_lst = [
+            'Gender',
+            'Education_Level',
+            'Marital_Status',
+            'Income_Category',
+            'Card_Category'
+        ]
+        df = cls.encoder_helper(df, category_lst)
+
+        # Perform feature engineering
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(df)
+
+        # Train models
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(
+            X_train, X_test, y_train, y_test)
+        logging.info("Testing train_models: SUCCESS")
+
+        # Check that the outputs are not empty
+        try:
+            assert len(y_train_preds_lr) > 0
+            assert len(y_train_preds_rf) > 0
+            assert len(y_test_preds_lr) > 0
+            assert len(y_test_preds_rf) > 0
+
+            # Check that the model files were created
+            assert os.path.isfile('./models/rfc_model.pkl')
+            assert os.path.isfile('./models/lrc_model.pkl')
+
+            # Check that the classification report images were created
+            rf_model_result = cls.ModelResults(y_train, y_test, y_train_preds_rf, y_test_preds_rf)
+            lr_model_result = cls.ModelResults(y_train, y_test, y_train_preds_lr, y_test_preds_lr)
+            cls.classification_report_image(rf_model_result, lr_model_result)
+
+            assert os.path.isfile('./images/roc_curve_result.png')
+            assert os.path.isfile('./images/classification_report_random_forest.png')
+            assert os.path.isfile('./images/classification_report_logistic_regression.png')
+
+            # Check feature importance plot
+            rfc = joblib.load('./models/rfc_model.pkl')
+            X_all = pd.concat([X_train, X_test], axis=0)
+            cls.feature_importance_plot(rfc, X_all.iloc[::10], './images')
+
+            assert os.path.isfile('./images/feature_importance.png')
+            assert os.path.isfile('./images/shap_feature_importance.png')
+
+            logging.info("Testing train_models outputs and files: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing train_models outputs and files: Not all expected outputs or files were created")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing train_models: ERROR")
+        raise err
+
+
+def test_classification_report_image(classification_report_image):
+    '''
+    test classification_report_image function
+    '''
+    try:
+        # Prepare test data
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category'])
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(df)
+
+        # Train models or load existing models
+        if os.path.exists('./models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl'):
+            y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = cls.predict_models(X_train, X_test)
+        else:
+            y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = cls.train_models(X_train, X_test, y_train, y_test)
+
+        # Create ModelResults objects
+        # Note: The order of parameters here matches the usage in the main function
+        # even though it's different from the class definition
+        rf_model_result = cls.ModelResults(y_train, y_test, y_train_preds_rf, y_test_preds_rf)
+        lr_model_result = cls.ModelResults(y_train, y_test, y_train_preds_lr, y_test_preds_lr)
+
+        # Call the function to test
+        classification_report_image(rf_model_result, lr_model_result)
+        logging.info("Testing classification_report_image: SUCCESS")
+
+        # Check that the output files exist
+        try:
+            assert os.path.isfile('./images/roc_curve_result.png')
+            assert os.path.isfile('./images/classification_report_random_forest.png')
+            assert os.path.isfile('./images/classification_report_logistic_regression.png')
+            logging.info("Testing classification_report_image output files: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing classification_report_image output files: Not all expected files were created")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing classification_report_image: ERROR")
+        raise err
+
+
+def test_feature_importance_plot(feature_importance_plot):
+    '''
+    test feature_importance_plot function
+    '''
+    try:
+        # Prepare test data
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category'])
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(df)
+
+        # Load model
+        if not os.path.exists('./models/rfc_model.pkl'):
+            # Train model if it doesn't exist
+            cls.train_models(X_train, X_test, y_train, y_test)
+
+        rfc = joblib.load('./models/rfc_model.pkl')
+
+        # Call the function to test
+        X_all = pd.concat([X_train, X_test], axis=0)
+        feature_importance_plot(rfc, X_all.iloc[::10], './images')
+        logging.info("Testing feature_importance_plot: SUCCESS")
+
+        # Check that the output files exist
+        try:
+            assert os.path.isfile('./images/feature_importance.png')
+            assert os.path.isfile('./images/shap_feature_importance.png')
+            logging.info("Testing feature_importance_plot output files: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing feature_importance_plot output files: Not all expected files were created")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing feature_importance_plot: ERROR")
+        raise err
+
+
+def test_predict_models(predict_models):
+    '''
+    test predict_models function
+    '''
+    try:
+        # Prepare test data
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.encoder_helper(df, ['Gender', 'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category'])
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(df)
+
+        # Ensure models exist
+        if not (os.path.exists('./models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl')):
+            # Train models if they don't exist
+            cls.train_models(X_train, X_test, y_train, y_test)
+
+        # Call the function to test
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = predict_models(X_train, X_test)
+        logging.info("Testing predict_models: SUCCESS")
+
+        # Check that the outputs are not empty
+        try:
+            assert len(y_train_preds_lr) > 0
+            assert len(y_train_preds_rf) > 0
+            assert len(y_test_preds_lr) > 0
+            assert len(y_test_preds_rf) > 0
+
+            # Check that the predictions have the correct shape
+            assert len(y_train_preds_lr) == X_train.shape[0]
+            assert len(y_train_preds_rf) == X_train.shape[0]
+            assert len(y_test_preds_lr) == X_test.shape[0]
+            assert len(y_test_preds_rf) == X_test.shape[0]
+
+            logging.info("Testing predict_models outputs: SUCCESS")
+        except AssertionError as err:
+            logging.error("Testing predict_models outputs: The outputs are not as expected")
+            raise err
+
+    except Exception as err:
+        logging.error("Testing predict_models: ERROR")
+        raise err
 
 
 if __name__ == "__main__":
