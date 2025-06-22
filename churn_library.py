@@ -80,8 +80,7 @@ def perform_eda(df):
     plt.savefig('./images/eda/correlation.png')
 
 
-
-def encoder_helper(df_, category_list, response='churn'):
+def encoder_helper(df_, category_list, response='Churn'):
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
@@ -95,12 +94,12 @@ def encoder_helper(df_, category_list, response='churn'):
     output:
             df: pandas dataframe with new columns for
     '''
-
+    df['Churn'] = df['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
     responses = [f'{c}_{response}' for c in category_list]
     for cat, resp in zip(category_list, responses):
         # feature encoded column
         feature_lst = []
-        feature_groups = df_.groupby(cat).mean()['Churn']
+        feature_groups = df_.groupby(cat)[response].mean()
 
         for val in df_[cat]:
             feature_lst.append(feature_groups.loc[val])
@@ -110,7 +109,7 @@ def encoder_helper(df_, category_list, response='churn'):
     return df_
 
 
-def perform_feature_engineering(df_, response):
+def perform_feature_engineering(df_, response="Churn"):
     '''
     input:
               df: pandas dataframe
@@ -132,7 +131,7 @@ def perform_feature_engineering(df_, response):
                  'Income_Category_Churn', 'Card_Category_Churn']
 
     x = pd.DataFrame()
-    y = df_['Churn']
+    y = df_[response]
     x[keep_cols] = df_[keep_cols]
     # train test split
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
