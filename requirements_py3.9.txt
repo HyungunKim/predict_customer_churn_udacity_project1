@@ -7,3 +7,4 @@ matplotlib==3.9.4
 seaborn==0.13.2
 pylint==3.3.7
 autopep8==2.3.2
+pytest==8.4.1
