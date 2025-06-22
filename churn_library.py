@@ -216,10 +216,11 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
+    plt.figure(figsize=(20, 5))
     explainer = shap.TreeExplainer(model.best_estimator_)
     shap_values = explainer.shap_values(X_data)
     shap.summary_plot(shap_values, X_data, plot_type="bar")
-    # plt.savefig(output_pth)
+    plt.savefig(f"{output_pth}/shap_feature_importance.png")
 
     # Calculate feature importances
     importances = model.best_estimator_.feature_importances_
@@ -241,7 +242,7 @@ def feature_importance_plot(model, X_data, output_pth):
 
     # Add feature names as x-axis labels
     plt.xticks(range(X_data.shape[1]), names, rotation=90);
-
+    plt.savefig(f"{output_pth}/feature_importance.png")
 
 def train_models(X_train, X_test, y_train, y_test):
     '''
