@@ -277,7 +277,7 @@ def feature_importance_plot(model, x_data_, output_pth):
              None
     '''
     plt.figure(figsize=(10, 5))
-    explainer = shap.TreeExplainer(model.best_estimator_)
+    explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(x_data_)
     shap.summary_plot(shap_values, x_data_, plot_type="bar", show=False)
     plt.title("SHAP Feature Importance")
@@ -285,7 +285,7 @@ def feature_importance_plot(model, x_data_, output_pth):
     plt.savefig(f"{output_pth}/shap_feature_importance.png")
 
     # Calculate feature importances
-    importances = model.best_estimator_.feature_importances_
+    importances = model.feature_importances_
     # Sort feature importances in descending order
     indices = np.argsort(importances)[::-1]
 
