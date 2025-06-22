@@ -75,7 +75,7 @@ def perform_eda(df):
 
     # plot correlation
     plt.figure(figsize=(20, 10))
-    sns.heatmap(df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
+    sns.heatmap(df.select_dtypes(include=['int64', 'float64']).corr(), annot=False, cmap='Dark2_r', linewidths=2)
     #     plt.show()
     plt.savefig('./images/eda/correlation.png')
 
