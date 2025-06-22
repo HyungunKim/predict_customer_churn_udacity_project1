@@ -31,6 +31,7 @@ formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
+
 def import_data(pth):
     '''
     returns dataframe for the csv found at pth
@@ -82,7 +83,14 @@ def perform_eda(df):
 
     # plot correlation
     plt.figure(figsize=(20, 10))
-    sns.heatmap(df.select_dtypes(include=['int64', 'float64']).corr(), annot=False, cmap='Dark2_r', linewidths=2)
+    sns.heatmap(
+        df.select_dtypes(
+            include=[
+                'int64',
+                'float64']).corr(),
+        annot=False,
+        cmap='Dark2_r',
+        linewidths=2)
     plt.title('Correlation Heatmap')
     plt.savefig('./images/eda/correlation.png')
 
@@ -101,7 +109,8 @@ def encoder_helper(df_, category_list, response='Churn'):
     output:
             df: pandas dataframe with new columns for
     '''
-    df['Churn'] = df['Attrition_Flag'].apply(lambda val: 0 if val == "Existing Customer" else 1)
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
     responses = [f'{c}_{response}' for c in category_list]
     for cat, resp in zip(category_list, responses):
         # feature encoded column
@@ -129,19 +138,33 @@ def perform_feature_engineering(df_, response="Churn"):
               y_train: y training data
               y_test: y testing data
     '''
-    keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
-                 'Total_Relationship_Count', 'Months_Inactive_12_mon',
-                 'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
-                 'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
-                 'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
-                 'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn',
-                 'Income_Category_Churn', 'Card_Category_Churn']
+    keep_cols = [
+        'Customer_Age',
+        'Dependent_count',
+        'Months_on_book',
+        'Total_Relationship_Count',
+        'Months_Inactive_12_mon',
+        'Contacts_Count_12_mon',
+        'Credit_Limit',
+        'Total_Revolving_Bal',
+        'Avg_Open_To_Buy',
+        'Total_Amt_Chng_Q4_Q1',
+        'Total_Trans_Amt',
+        'Total_Trans_Ct',
+        'Total_Ct_Chng_Q4_Q1',
+        'Avg_Utilization_Ratio',
+        'Gender_Churn',
+        'Education_Level_Churn',
+        'Marital_Status_Churn',
+        'Income_Category_Churn',
+        'Card_Category_Churn']
 
     x = pd.DataFrame()
     y = df_[response]
     x[keep_cols] = df_[keep_cols]
     # train test split
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(
+        x, y, test_size=0.3, random_state=42)
     return x_train, x_test, y_train, y_test
 
 
@@ -190,23 +213,26 @@ def classification_report_image(y_train,
 
     plt.figure(figsize=(7, 5))
     # plt.text(0.01, 0.05, str(model.summary()), {'fontsize': 12}) old approach
-    plt.text(0.01, 1.25, str('Random Forest Train'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 1.25, str('Random Forest Train'), {
+             'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {'fontsize': 10},
              fontproperties='monospace')  # approach improved by OP -> monospace!
 
-    plt.text(0.01, 0.6, str('Random Forest Test'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.6, str('Random Forest Test'), {
+             'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {'fontsize': 10},
              fontproperties='monospace')  # approach improved by OP -> monospace!
     plt.axis('off')
     plt.savefig('./images/classification_report_random_forest.png')
     plt.close()
 
-
     plt.figure(figsize=(7, 5))
-    plt.text(0.01, 1.25, str('Logistic Regression Train'), {'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {'fontsize': 10},
-             fontproperties='monospace')  # approach improved by OP -> monospace!
-    plt.text(0.01, 0.6, str('Logistic Regression Test'), {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 1.25, str('Logistic Regression Train'),
+             {'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
+             'fontsize': 10}, fontproperties='monospace')  # approach improved by OP -> monospace!
+    plt.text(0.01, 0.6, str('Logistic Regression Test'), {
+             'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {'fontsize': 10},
              fontproperties='monospace')  # approach improved by OP -> monospace!
     plt.axis('off')
@@ -253,8 +279,9 @@ def feature_importance_plot(model, X_data, output_pth):
     plt.bar(range(X_data.shape[1]), importances[indices])
 
     # Add feature names as x-axis labels
-    plt.xticks(range(X_data.shape[1]), names, rotation=90);
+    plt.xticks(range(X_data.shape[1]), names, rotation=90)
     plt.savefig(f"{output_pth}/feature_importance.png")
+
 
 def train_models(X_train, X_test, y_train, y_test):
     '''
@@ -274,7 +301,8 @@ def train_models(X_train, X_test, y_train, y_test):
     # grid search
     rfc = RandomForestClassifier(random_state=42)
     # Use a different solver if the default 'lbfgs' fails to converge
-    # Reference: https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+    # Reference:
+    # https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
     lrc = LogisticRegression(solver='lbfgs', max_iter=3000)
 
     param_grid = {
@@ -317,6 +345,7 @@ def train_models(X_train, X_test, y_train, y_test):
 
     return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
 
+
 def predict_models(X_train, X_yest, y_train, y_test):
     with open('./models/rfc_model.pkl', 'rb') as f:
         rfc = joblib.load(f)
@@ -327,6 +356,7 @@ def predict_models(X_train, X_yest, y_train, y_test):
     y_train_preds_lr = lrc.predict(X_train)
     y_test_preds_lr = lrc.predict(X_yest)
     return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
+
 
 if __name__ == "__main__":
     pth = './data/bank_data.csv'
@@ -342,18 +372,26 @@ if __name__ == "__main__":
     x_train, x_test, y_train, y_test = perform_feature_engineering(df, 'Churn')
     logging.info("performing EDA")
     perform_eda(df)
-    if os.path.exists('./models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl'):
+    if os.path.exists(
+            './models/rfc_model.pkl') and os.path.exists('./models/lrc_model.pkl'):
         logging.info('models exist, loading models')
-        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = predict_models(x_train, x_test, y_train, y_test)
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = predict_models(
+            x_train, x_test, y_train, y_test)
     else:
         logging.info('models do not exist, training models')
-        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(x_train, x_test, y_train, y_test)
+        y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(
+            x_train, x_test, y_train, y_test)
 
     logging.info("calling classification report image")
-    classification_report_image(y_train, y_test, y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf)
+    classification_report_image(
+        y_train,
+        y_test,
+        y_train_preds_lr,
+        y_train_preds_rf,
+        y_test_preds_lr,
+        y_test_preds_rf)
     rfc = joblib.load('./models/rfc_model.pkl')
     X_all = pd.concat([x_train, x_test], axis=0)
     logging.info("calling feature importance plot")
     # sample only fraction of X_all to save time
     feature_importance_plot(rfc, X_all.iloc[::10], './images')
-
