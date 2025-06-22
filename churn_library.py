@@ -310,7 +310,7 @@ def train_models(X_train, X_test, y_train, y_test):
     logging.info(classification_report(y_train, y_train_preds_lr))
 
     with open('./models/rfc_model.pkl', 'wb') as f:
-        joblib.dump(cv_rfc, f)
+        joblib.dump(cv_rfc.best_estimator_, f)
 
     with open('./models/lrc_model.pkl', 'wb') as f:
         joblib.dump(lrc, f)
