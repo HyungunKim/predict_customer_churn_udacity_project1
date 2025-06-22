@@ -11,11 +11,7 @@ logging.basicConfig(
     level=logging.INFO,
     filemode='w',
     format='[%(asctime)s] - %(levelname)s - %(message)s')
-console = logging.StreamHandler()
-console.setLevel(logging.ERROR)
-formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+
 
 # Create logs directory if it doesn't exist
 if not os.path.exists('./logs'):
@@ -387,6 +383,11 @@ def test_predict_models(predict_models):
 
 
 if __name__ == "__main__":
+    console = logging.StreamHandler()
+    console.setLevel(logging.ERROR)
+    formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
     # Run pytest
     retcode = pytest.main([os.path.join(os.path.dirname(__file__), 'churn_script_logging_and_tests.py')])
     exit(retcode)
