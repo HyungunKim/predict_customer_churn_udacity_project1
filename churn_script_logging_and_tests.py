@@ -122,4 +122,6 @@ def test_train_models(train_models):
 
 
 if __name__ == "__main__":
-    pass
+    # Run pytest
+    retcode = pytest.main([os.path.join(os.path.dirname(__file__), 'churn_script_logging_and_tests.py')])
+    exit(retcode)
