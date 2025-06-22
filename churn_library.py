@@ -253,12 +253,12 @@ def train_models(X_train, X_test, y_train, y_test):
               y_train: y training data
               y_test: y testing data
     output:
-              None
+              y_train_preds_lr: training predictions from logistic regression
+              y_train_preds_rf: training predictions from random forest
+              y_test_preds_lr: test predictions from logistic regression
+              y_test_preds_rf: test predictions from random forest
     '''
     # This cell may take up to 15-20 minutes to run
-    # train test split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
     # grid search
     rfc = RandomForestClassifier(random_state=42)
     # Use a different solver if the default 'lbfgs' fails to converge
@@ -303,6 +303,7 @@ def train_models(X_train, X_test, y_train, y_test):
     with open('./models/lrc_model.pkl', 'wb') as f:
         joblib.dump(lrc, f)
 
+    return y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf
 
 
 
