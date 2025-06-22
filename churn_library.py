@@ -20,6 +20,7 @@ Date: 2025-06-22
 # import libraries
 import logging
 import os
+from dataclasses import dataclass
 from sklearn.metrics import RocCurveDisplay, classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -47,6 +48,20 @@ formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
+@dataclass
+class ModelResults:
+    """
+    Represents the results of a predictive model's performance.
+
+    This data class stores the actual and predicted values for both the
+    training and testing datasets. It is designed to provide a
+    structured way to encapsulate and access these values, enabling
+    downstream analysis or reporting of model performance.
+    """
+    y_train_preds_: np.ndarray
+    y_test_preds_: np.ndarray
+    y_train_: np.ndarray
+    y_test_: np.ndarray
 
 def import_data(pth):
     '''
@@ -184,26 +199,23 @@ def perform_feature_engineering(df_, response="Churn"):
     return x_train, x_test, y_train, y_test
 
 
-def classification_report_image(y_train,
-                                y_test,
-                                y_train_preds_lr,
-                                y_train_preds_rf,
-                                y_test_preds_lr,
-                                y_test_preds_rf):
+def classification_report_image(rf_model_results_, lrc_model_results_):
     '''
     produces classification report for training and testing results and stores report as image
     in images folder
     input:
-            y_train: training response values
-            y_test:  test response values
-            y_train_preds_lr: training predictions from logistic regression
-            y_train_preds_rf: training predictions from random forest
-            y_test_preds_lr: test predictions from logistic regression
-            y_test_preds_rf: test predictions from random forest
+            rf_model_results: ModelResults object containing training results
+            lrc_model_results: ModelResults object containing testing results
 
     output:
              None
     '''
+    y_train_ = rf_model_results_.y_train_
+    y_test_ = rf_model_results_.y_test_
+    y_train_preds_rf_ = rf_model_results_.y_train_preds_
+    y_test_preds_rf_ = rf_model_results_.y_test_preds_
+    y_train_preds_lr_ = lrc_model_results_.y_train_preds_
+    y_test_preds_lr_ = lrc_model_results_.y_test_preds_
     # scores
     logging.info('random forest results')
     logging.info('test results')
@@ -398,14 +410,10 @@ if __name__ == "__main__":
         y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(
             x_train, x_test, y_train, y_test)
 
+    rf_model_result = ModelResults(y_train, y_test, y_train_preds_rf, y_test_preds_rf)
+    lr_model_result = ModelResults(y_train, y_test, y_train_preds_lr, y_test_preds_lr)
     logging.info("calling classification report image")
-    classification_report_image(
-        y_train,
-        y_test,
-        y_train_preds_lr,
-        y_train_preds_rf,
-        y_test_preds_lr,
-        y_test_preds_rf)
+    classification_report_image(rf_model_result, lr_model_result)
     rfc = joblib.load('./models/rfc_model.pkl')
     X_all = pd.concat([x_train, x_test], axis=0)
     logging.info("calling feature importance plot")
