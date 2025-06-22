@@ -26,7 +26,10 @@ logging.basicConfig(filename="./logs/churn_library_debug.log",
                     format='[%(asctime)s] - %(levelname)s - %(message)s',
                     filemode='w',
                     level=logging.INFO)
-
+console = logging.StreamHandler()
+formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
 def import_data(pth):
     '''
