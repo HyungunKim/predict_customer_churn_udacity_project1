@@ -1,13 +1,81 @@
 import os
 import logging
-import churn_library_solution as cls
+import churn_library as cls
+import pytest
+import joblib
+import pandas as pd
+import numpy as np
 
 logging.basicConfig(
-    filename='./logs/churn_library.log',
+    filename='./logs/churn_library_test.log',
     level=logging.INFO,
     filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
+    format='[%(asctime)s] - %(levelname)s - %(message)s')
+console = logging.StreamHandler()
+console.setLevel(logging.ERROR)
+formatter = logging.Formatter('[%(asctime)s] - %(levelname)s - %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
+# Create logs directory if it doesn't exist
+if not os.path.exists('./logs'):
+    os.makedirs('./logs')
+
+@pytest.fixture(scope="module")
+def import_data():
+    """
+    Fixture for the import_data function
+    """
+    return cls.import_data
+
+@pytest.fixture(scope="module")
+def perform_eda():
+    """
+    Fixture for the perform_eda function
+    """
+    return cls.perform_eda
+
+@pytest.fixture(scope="module")
+def encoder_helper():
+    """
+    Fixture for the encoder_helper function
+    """
+    return cls.encoder_helper
+
+@pytest.fixture(scope="module")
+def perform_feature_engineering():
+    """
+    Fixture for the perform_feature_engineering function
+    """
+    return cls.perform_feature_engineering
+
+@pytest.fixture(scope="module")
+def train_models():
+    """
+    Fixture for the train_models function
+    """
+    return cls.train_models
+
+@pytest.fixture(scope="module")
+def classification_report_image():
+    """
+    Fixture for the classification_report_image function
+    """
+    return cls.classification_report_image
+
+@pytest.fixture(scope="module")
+def feature_importance_plot():
+    """
+    Fixture for the feature_importance_plot function
+    """
+    return cls.feature_importance_plot
+
+@pytest.fixture(scope="module")
+def predict_models():
+    """
+    Fixture for the predict_models function
+    """
+    return cls.predict_models
 
 def test_import(import_data):
     '''
